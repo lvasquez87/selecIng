@@ -1,0 +1,1988 @@
+Dim Tag_Name As String
+Dim IO_Server As String
+Dim My_Group As TagGroup
+Dim HMITag As Tag
+Dim ErrorTags As StringList
+Dim counter As Integer
+Dim TagValue(213) As String
+Dim TagNumber As Boolean
+Dim ValorCheckbox As Boolean
+Dim WriteValue(200) As Integer
+Dim ingredienteL(12) As String
+Dim cantidad(12) As Double
+Dim orden As Integer
+Dim ticket As Integer
+Dim ingredienteLiq As String
+Dim cantidadLiq As Double
+Dim ingredienteLiq1 As String
+Dim cantidadLiq1 As Double
+Dim version2 As String
+Dim i As Integer
+Dim tanque(12) As String
+Dim cantidadTanque(12) As Double
+
+
+
+Dim strSQL As String
+Dim TagValue1(7) As String
+
+Dim strID As String
+Dim strCODIGO As String
+Dim strVERSION As String
+Dim strDESCRIPCION As String
+Dim strCOD_PROD_TERM As String
+Dim strCOD_FABRICA As String
+Dim strOBSERVACIONES As String
+
+Dim LPosition As Integer
+Dim texto As String
+Dim AceiteGrasa As Boolean
+'VARIABLE PARA VALIDACION DE ESCRITURA DE ENCABEZADO
+Dim escrito As Boolean
+
+
+'FIN VARIABLE PARA VALIDACION DE ESCRITURA DE ENCABEZADO
+
+
+Sub ConnectSqlServer()
+
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim sConnString As String
+
+ActualizarDatos
+'strSQL = "INSERT INTO OrdenProduccion ([ID], [CODIGO], [VERSION], [DESCRIPCION], [COD_PROD_TERM], [COD_FABRICA], [OBSERVACIONES])" & _
+'          "VALUES ('" & TagValue(0) & "', '" & TagValue(1) & "', '" & TagValue(2) & "', '" & TagValue(3) & "', '" & TagValue(4) & "', '" & TagValue(5) & "', '" & TagValue(6) & "');"
+
+'strSQL = "SELECT * FROM OrdenProduccion WHERE [CODIGO] = 'S';"
+
+
+' Create the connection string.
+'sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+
+sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+"Initial Catalog=Recetas;" & _
+"Integrated Security=SSPI"
+
+' Create the Connection and Recordset objects.
+Set conn = New ADODB.Connection
+Set rs = New ADODB.Recordset
+
+' Open the connection and execute.
+conn.Open sConnString
+Set rs = conn.Execute(strSQL)
+
+If (Not rs.EOF) Or (Not rs.BOF) Then
+    strID = rs.Fields(0)
+    strCODIGO = rs.Fields(1)
+    strVERSION = rs.Fields(2)
+    strDESCRIPCION = rs.Fields(3)
+    strCOD_PROD_TERM = rs.Fields(4)
+    strCOD_FABRICA = rs.Fields(5)
+    strOBSERVACIONES = rs.Fields(6)
+End If
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.ID}")
+HMITag.PendingWriteValue = strID
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.CODIGO}")
+HMITag.PendingWriteValue = strCODIGO
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.VERSION}")
+HMITag.PendingWriteValue = strVERSION
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.DESCRIPCION}")
+HMITag.PendingWriteValue = strDESCRIPCION
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.COD_PROD_TERM}")
+HMITag.PendingWriteValue = strCOD_PROD_TERM
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.COD_FABRICA}")
+HMITag.PendingWriteValue = strCOD_FABRICA
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "DEF_RECETA.OBSERVACIONES}")
+HMITag.PendingWriteValue = strOBSERVACIONES
+Result = My_Group.WritePendingValues(ErrorTags)
+
+
+' Clean up
+If CBool(conn.State And adStateOpen) Then conn.Close
+Set conn = Nothing
+Set rs = Nothing
+
+End Sub
+
+
+Public Sub Add_MyGroup()
+   If My_Group Is Nothing Then
+      Set My_Group = Application.CreateTagGroup(Me.AreaName, 500)
+   End If
+   IO_Server = "{[MEZCLADORA]"
+   My_Group.Add "{SinMezclaHumeda}"
+   My_Group.Add IO_Server & "Deshabilitar_Mezc_Humeda}"
+   My_Group.Add IO_Server & "INGREDIENTES[0].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[1].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[2].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[3].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[4].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[5].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[6].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[7].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[8].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[9].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[10].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[11].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[12].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[13].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[14].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[15].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[16].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[17].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[18].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[19].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[20].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[21].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[22].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[23].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[24].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[25].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[26].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[27].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[28].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[29].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[30].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[31].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[32].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[33].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[34].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[35].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[36].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[37].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[38].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[39].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[40].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[41].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[42].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[43].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[44].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[45].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[46].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[47].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[48].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[49].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[50].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[51].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[52].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[53].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[54].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[55].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[56].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[57].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[58].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[59].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[60].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[61].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[62].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[63].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[64].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[65].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[66].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[67].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[68].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[69].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[70].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[71].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[72].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[73].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[74].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[75].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[76].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[77].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[78].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[79].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[80].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[81].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[82].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[83].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[84].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[85].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[86].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[87].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[88].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[89].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[90].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[91].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[92].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[93].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[94].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[95].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[96].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[97].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[98].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[99].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[100].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[101].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[102].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[103].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[104].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[105].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[106].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[107].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[108].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[109].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[110].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[111].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[112].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[113].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[114].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[115].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[116].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[117].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[118].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[119].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[120].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[121].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[122].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[123].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[124].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[125].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[126].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[127].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[128].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[129].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[130].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[131].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[132].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[133].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[134].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[135].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[136].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[137].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[138].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[139].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[140].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[141].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[142].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[143].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[144].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[145].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[146].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[147].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[148].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[149].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[150].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[151].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[152].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[153].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[154].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[155].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[156].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[157].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[158].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[159].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[160].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[161].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[162].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[163].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[164].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[165].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[166].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[167].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[168].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[169].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[170].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[171].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[172].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[173].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[174].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[175].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[176].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[177].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[178].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[179].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[180].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[181].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[182].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[183].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[184].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[185].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[186].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[187].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[188].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[189].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[190].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[191].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[192].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[193].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[194].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[195].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[196].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[197].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[198].Nombre}"
+   My_Group.Add IO_Server & "INGREDIENTES[199].Nombre}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING1}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING2}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING3}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING4}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING5}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING6}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING7}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING8}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING9}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING10}"
+   My_Group.Add IO_Server & "ZZ_SELECT_ING11}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D1}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D2}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D3}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D4}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D5}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D6}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D7}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D8}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D9}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D10}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_MACRO_D11}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[1]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[2]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[3]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[4]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[5]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[6]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[7]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[8]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[9]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[10]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_TANQUE[11]}"
+   My_Group.Add IO_Server & "Program:MainProgram.ING_ACEITE}"
+   My_Group.Add IO_Server & "ZZ_VIS11}"
+   My_Group.Add IO_Server & "DEF_RECETA.ID}"
+   My_Group.Add IO_Server & "DEF_RECETA.CODIGO}"
+   My_Group.Add IO_Server & "DEF_RECETA.VERSION}"
+   My_Group.Add IO_Server & "DEF_RECETA.DESCRIPCION}"
+   My_Group.Add IO_Server & "DEF_RECETA.COD_PROD_TERM}"
+   My_Group.Add IO_Server & "DEF_RECETA.COD_FABRICA}"
+   My_Group.Add IO_Server & "DEF_RECETA.OBSERVACIONES}"
+   My_Group.Add IO_Server & "Program:MainProgram.Grasa_Aceite}"
+   My_Group.Add IO_Server & "NUMERO_TICKET}"
+   My_Group.Add IO_Server & "NUMERO_ORDEN}"
+   My_Group.Add IO_Server & "cantidadLiq}"
+   My_Group.Add IO_Server & "ingredienteLiq}"
+   'ACEITES
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_ACEITE_COATER}"
+   My_Group.Add IO_Server & "ZZ_CANTIDAD_ACEITE}"
+
+   
+   
+
+
+
+
+
+   My_Group.Active = True
+
+End Sub
+
+
+  
+Public Sub ActualizarIng()
+Add_MyGroup
+   My_Group.RefreshFromSource ErrorTags ' refresh values
+   TagValue(0) = My_Group.Item(IO_Server & "INGREDIENTES[0].Nombre}").Value
+   TagValue(1) = My_Group.Item(IO_Server & "INGREDIENTES[1].Nombre}").Value
+   TagValue(2) = My_Group.Item(IO_Server & "INGREDIENTES[2].Nombre}").Value
+   TagValue(3) = My_Group.Item(IO_Server & "INGREDIENTES[3].Nombre}").Value
+   TagValue(4) = My_Group.Item(IO_Server & "INGREDIENTES[4].Nombre}").Value
+   TagValue(5) = My_Group.Item(IO_Server & "INGREDIENTES[5].Nombre}").Value
+   TagValue(6) = My_Group.Item(IO_Server & "INGREDIENTES[6].Nombre}").Value
+   TagValue(7) = My_Group.Item(IO_Server & "INGREDIENTES[7].Nombre}").Value
+   TagValue(8) = My_Group.Item(IO_Server & "INGREDIENTES[8].Nombre}").Value
+   TagValue(9) = My_Group.Item(IO_Server & "INGREDIENTES[9].Nombre}").Value
+   TagValue(10) = My_Group.Item(IO_Server & "INGREDIENTES[10].Nombre}").Value
+   TagValue(11) = My_Group.Item(IO_Server & "INGREDIENTES[11].Nombre}").Value
+   TagValue(12) = My_Group.Item(IO_Server & "INGREDIENTES[12].Nombre}").Value
+   TagValue(13) = My_Group.Item(IO_Server & "INGREDIENTES[13].Nombre}").Value
+   TagValue(14) = My_Group.Item(IO_Server & "INGREDIENTES[14].Nombre}").Value
+   TagValue(15) = My_Group.Item(IO_Server & "INGREDIENTES[15].Nombre}").Value
+   TagValue(16) = My_Group.Item(IO_Server & "INGREDIENTES[16].Nombre}").Value
+   TagValue(17) = My_Group.Item(IO_Server & "INGREDIENTES[17].Nombre}").Value
+   TagValue(18) = My_Group.Item(IO_Server & "INGREDIENTES[18].Nombre}").Value
+   TagValue(19) = My_Group.Item(IO_Server & "INGREDIENTES[19].Nombre}").Value
+   TagValue(20) = My_Group.Item(IO_Server & "INGREDIENTES[20].Nombre}").Value
+   TagValue(21) = My_Group.Item(IO_Server & "INGREDIENTES[21].Nombre}").Value
+   TagValue(22) = My_Group.Item(IO_Server & "INGREDIENTES[22].Nombre}").Value
+   TagValue(23) = My_Group.Item(IO_Server & "INGREDIENTES[23].Nombre}").Value
+   TagValue(24) = My_Group.Item(IO_Server & "INGREDIENTES[24].Nombre}").Value
+   TagValue(25) = My_Group.Item(IO_Server & "INGREDIENTES[25].Nombre}").Value
+   TagValue(26) = My_Group.Item(IO_Server & "INGREDIENTES[26].Nombre}").Value
+   TagValue(27) = My_Group.Item(IO_Server & "INGREDIENTES[27].Nombre}").Value
+   TagValue(28) = My_Group.Item(IO_Server & "INGREDIENTES[28].Nombre}").Value
+   TagValue(29) = My_Group.Item(IO_Server & "INGREDIENTES[29].Nombre}").Value
+   TagValue(30) = My_Group.Item(IO_Server & "INGREDIENTES[30].Nombre}").Value
+   TagValue(31) = My_Group.Item(IO_Server & "INGREDIENTES[31].Nombre}").Value
+   TagValue(32) = My_Group.Item(IO_Server & "INGREDIENTES[32].Nombre}").Value
+   TagValue(33) = My_Group.Item(IO_Server & "INGREDIENTES[33].Nombre}").Value
+   TagValue(34) = My_Group.Item(IO_Server & "INGREDIENTES[34].Nombre}").Value
+   TagValue(35) = My_Group.Item(IO_Server & "INGREDIENTES[35].Nombre}").Value
+   TagValue(36) = My_Group.Item(IO_Server & "INGREDIENTES[36].Nombre}").Value
+   TagValue(37) = My_Group.Item(IO_Server & "INGREDIENTES[37].Nombre}").Value
+   TagValue(38) = My_Group.Item(IO_Server & "INGREDIENTES[38].Nombre}").Value
+   TagValue(39) = My_Group.Item(IO_Server & "INGREDIENTES[39].Nombre}").Value
+   TagValue(40) = My_Group.Item(IO_Server & "INGREDIENTES[40].Nombre}").Value
+   TagValue(41) = My_Group.Item(IO_Server & "INGREDIENTES[41].Nombre}").Value
+   TagValue(42) = My_Group.Item(IO_Server & "INGREDIENTES[42].Nombre}").Value
+   TagValue(43) = My_Group.Item(IO_Server & "INGREDIENTES[43].Nombre}").Value
+   TagValue(44) = My_Group.Item(IO_Server & "INGREDIENTES[44].Nombre}").Value
+   TagValue(45) = My_Group.Item(IO_Server & "INGREDIENTES[45].Nombre}").Value
+   TagValue(46) = My_Group.Item(IO_Server & "INGREDIENTES[46].Nombre}").Value
+   TagValue(47) = My_Group.Item(IO_Server & "INGREDIENTES[47].Nombre}").Value
+   TagValue(48) = My_Group.Item(IO_Server & "INGREDIENTES[48].Nombre}").Value
+   TagValue(49) = My_Group.Item(IO_Server & "INGREDIENTES[49].Nombre}").Value
+   TagValue(50) = My_Group.Item(IO_Server & "INGREDIENTES[50].Nombre}").Value
+   TagValue(51) = My_Group.Item(IO_Server & "INGREDIENTES[51].Nombre}").Value
+   TagValue(52) = My_Group.Item(IO_Server & "INGREDIENTES[52].Nombre}").Value
+   TagValue(53) = My_Group.Item(IO_Server & "INGREDIENTES[53].Nombre}").Value
+   TagValue(54) = My_Group.Item(IO_Server & "INGREDIENTES[54].Nombre}").Value
+   TagValue(55) = My_Group.Item(IO_Server & "INGREDIENTES[55].Nombre}").Value
+   TagValue(56) = My_Group.Item(IO_Server & "INGREDIENTES[56].Nombre}").Value
+   TagValue(57) = My_Group.Item(IO_Server & "INGREDIENTES[57].Nombre}").Value
+   TagValue(58) = My_Group.Item(IO_Server & "INGREDIENTES[58].Nombre}").Value
+   TagValue(59) = My_Group.Item(IO_Server & "INGREDIENTES[59].Nombre}").Value
+   TagValue(60) = My_Group.Item(IO_Server & "INGREDIENTES[60].Nombre}").Value
+   TagValue(61) = My_Group.Item(IO_Server & "INGREDIENTES[61].Nombre}").Value
+   TagValue(62) = My_Group.Item(IO_Server & "INGREDIENTES[62].Nombre}").Value
+   TagValue(63) = My_Group.Item(IO_Server & "INGREDIENTES[63].Nombre}").Value
+   TagValue(64) = My_Group.Item(IO_Server & "INGREDIENTES[64].Nombre}").Value
+   TagValue(65) = My_Group.Item(IO_Server & "INGREDIENTES[65].Nombre}").Value
+   TagValue(66) = My_Group.Item(IO_Server & "INGREDIENTES[66].Nombre}").Value
+   TagValue(67) = My_Group.Item(IO_Server & "INGREDIENTES[67].Nombre}").Value
+   TagValue(68) = My_Group.Item(IO_Server & "INGREDIENTES[68].Nombre}").Value
+   TagValue(69) = My_Group.Item(IO_Server & "INGREDIENTES[69].Nombre}").Value
+   TagValue(70) = My_Group.Item(IO_Server & "INGREDIENTES[70].Nombre}").Value
+   TagValue(71) = My_Group.Item(IO_Server & "INGREDIENTES[71].Nombre}").Value
+   TagValue(72) = My_Group.Item(IO_Server & "INGREDIENTES[72].Nombre}").Value
+   TagValue(73) = My_Group.Item(IO_Server & "INGREDIENTES[73].Nombre}").Value
+   TagValue(74) = My_Group.Item(IO_Server & "INGREDIENTES[74].Nombre}").Value
+   TagValue(75) = My_Group.Item(IO_Server & "INGREDIENTES[75].Nombre}").Value
+   TagValue(76) = My_Group.Item(IO_Server & "INGREDIENTES[76].Nombre}").Value
+   TagValue(77) = My_Group.Item(IO_Server & "INGREDIENTES[77].Nombre}").Value
+   TagValue(78) = My_Group.Item(IO_Server & "INGREDIENTES[78].Nombre}").Value
+   TagValue(79) = My_Group.Item(IO_Server & "INGREDIENTES[79].Nombre}").Value
+   TagValue(80) = My_Group.Item(IO_Server & "INGREDIENTES[80].Nombre}").Value
+   TagValue(81) = My_Group.Item(IO_Server & "INGREDIENTES[81].Nombre}").Value
+   TagValue(82) = My_Group.Item(IO_Server & "INGREDIENTES[82].Nombre}").Value
+   TagValue(83) = My_Group.Item(IO_Server & "INGREDIENTES[83].Nombre}").Value
+   TagValue(84) = My_Group.Item(IO_Server & "INGREDIENTES[84].Nombre}").Value
+   TagValue(85) = My_Group.Item(IO_Server & "INGREDIENTES[85].Nombre}").Value
+   TagValue(86) = My_Group.Item(IO_Server & "INGREDIENTES[86].Nombre}").Value
+   TagValue(87) = My_Group.Item(IO_Server & "INGREDIENTES[87].Nombre}").Value
+   TagValue(88) = My_Group.Item(IO_Server & "INGREDIENTES[88].Nombre}").Value
+   TagValue(89) = My_Group.Item(IO_Server & "INGREDIENTES[89].Nombre}").Value
+   TagValue(90) = My_Group.Item(IO_Server & "INGREDIENTES[90].Nombre}").Value
+   TagValue(91) = My_Group.Item(IO_Server & "INGREDIENTES[91].Nombre}").Value
+   TagValue(92) = My_Group.Item(IO_Server & "INGREDIENTES[92].Nombre}").Value
+   TagValue(93) = My_Group.Item(IO_Server & "INGREDIENTES[93].Nombre}").Value
+   TagValue(94) = My_Group.Item(IO_Server & "INGREDIENTES[94].Nombre}").Value
+   TagValue(95) = My_Group.Item(IO_Server & "INGREDIENTES[95].Nombre}").Value
+   TagValue(96) = My_Group.Item(IO_Server & "INGREDIENTES[96].Nombre}").Value
+   TagValue(97) = My_Group.Item(IO_Server & "INGREDIENTES[97].Nombre}").Value
+   TagValue(98) = My_Group.Item(IO_Server & "INGREDIENTES[98].Nombre}").Value
+   TagValue(99) = My_Group.Item(IO_Server & "INGREDIENTES[99].Nombre}").Value
+   TagValue(100) = My_Group.Item(IO_Server & "INGREDIENTES[100].Nombre}").Value
+   TagValue(101) = My_Group.Item(IO_Server & "INGREDIENTES[101].Nombre}").Value
+   TagValue(102) = My_Group.Item(IO_Server & "INGREDIENTES[102].Nombre}").Value
+   TagValue(103) = My_Group.Item(IO_Server & "INGREDIENTES[103].Nombre}").Value
+   TagValue(104) = My_Group.Item(IO_Server & "INGREDIENTES[104].Nombre}").Value
+   TagValue(105) = My_Group.Item(IO_Server & "INGREDIENTES[105].Nombre}").Value
+   TagValue(106) = My_Group.Item(IO_Server & "INGREDIENTES[106].Nombre}").Value
+   TagValue(107) = My_Group.Item(IO_Server & "INGREDIENTES[107].Nombre}").Value
+   TagValue(108) = My_Group.Item(IO_Server & "INGREDIENTES[108].Nombre}").Value
+   TagValue(109) = My_Group.Item(IO_Server & "INGREDIENTES[109].Nombre}").Value
+   TagValue(110) = My_Group.Item(IO_Server & "INGREDIENTES[110].Nombre}").Value
+   TagValue(111) = My_Group.Item(IO_Server & "INGREDIENTES[111].Nombre}").Value
+   TagValue(112) = My_Group.Item(IO_Server & "INGREDIENTES[112].Nombre}").Value
+   TagValue(113) = My_Group.Item(IO_Server & "INGREDIENTES[113].Nombre}").Value
+   TagValue(114) = My_Group.Item(IO_Server & "INGREDIENTES[114].Nombre}").Value
+   TagValue(115) = My_Group.Item(IO_Server & "INGREDIENTES[115].Nombre}").Value
+   TagValue(116) = My_Group.Item(IO_Server & "INGREDIENTES[116].Nombre}").Value
+   TagValue(117) = My_Group.Item(IO_Server & "INGREDIENTES[117].Nombre}").Value
+   TagValue(118) = My_Group.Item(IO_Server & "INGREDIENTES[118].Nombre}").Value
+   TagValue(119) = My_Group.Item(IO_Server & "INGREDIENTES[119].Nombre}").Value
+   TagValue(120) = My_Group.Item(IO_Server & "INGREDIENTES[120].Nombre}").Value
+   TagValue(121) = My_Group.Item(IO_Server & "INGREDIENTES[121].Nombre}").Value
+   TagValue(122) = My_Group.Item(IO_Server & "INGREDIENTES[122].Nombre}").Value
+   TagValue(123) = My_Group.Item(IO_Server & "INGREDIENTES[123].Nombre}").Value
+   TagValue(124) = My_Group.Item(IO_Server & "INGREDIENTES[124].Nombre}").Value
+   TagValue(125) = My_Group.Item(IO_Server & "INGREDIENTES[125].Nombre}").Value
+   TagValue(126) = My_Group.Item(IO_Server & "INGREDIENTES[126].Nombre}").Value
+   TagValue(127) = My_Group.Item(IO_Server & "INGREDIENTES[127].Nombre}").Value
+   TagValue(128) = My_Group.Item(IO_Server & "INGREDIENTES[128].Nombre}").Value
+   TagValue(129) = My_Group.Item(IO_Server & "INGREDIENTES[129].Nombre}").Value
+   TagValue(130) = My_Group.Item(IO_Server & "INGREDIENTES[130].Nombre}").Value
+   TagValue(131) = My_Group.Item(IO_Server & "INGREDIENTES[131].Nombre}").Value
+   TagValue(132) = My_Group.Item(IO_Server & "INGREDIENTES[132].Nombre}").Value
+   TagValue(133) = My_Group.Item(IO_Server & "INGREDIENTES[133].Nombre}").Value
+   TagValue(134) = My_Group.Item(IO_Server & "INGREDIENTES[134].Nombre}").Value
+   TagValue(135) = My_Group.Item(IO_Server & "INGREDIENTES[135].Nombre}").Value
+   TagValue(136) = My_Group.Item(IO_Server & "INGREDIENTES[136].Nombre}").Value
+   TagValue(137) = My_Group.Item(IO_Server & "INGREDIENTES[137].Nombre}").Value
+   TagValue(138) = My_Group.Item(IO_Server & "INGREDIENTES[138].Nombre}").Value
+   TagValue(139) = My_Group.Item(IO_Server & "INGREDIENTES[139].Nombre}").Value
+   TagValue(140) = My_Group.Item(IO_Server & "INGREDIENTES[140].Nombre}").Value
+   TagValue(141) = My_Group.Item(IO_Server & "INGREDIENTES[141].Nombre}").Value
+   TagValue(142) = My_Group.Item(IO_Server & "INGREDIENTES[142].Nombre}").Value
+   TagValue(143) = My_Group.Item(IO_Server & "INGREDIENTES[143].Nombre}").Value
+   TagValue(144) = My_Group.Item(IO_Server & "INGREDIENTES[144].Nombre}").Value
+   TagValue(145) = My_Group.Item(IO_Server & "INGREDIENTES[145].Nombre}").Value
+   TagValue(146) = My_Group.Item(IO_Server & "INGREDIENTES[146].Nombre}").Value
+   TagValue(147) = My_Group.Item(IO_Server & "INGREDIENTES[147].Nombre}").Value
+   TagValue(148) = My_Group.Item(IO_Server & "INGREDIENTES[148].Nombre}").Value
+   TagValue(149) = My_Group.Item(IO_Server & "INGREDIENTES[149].Nombre}").Value
+   TagValue(150) = My_Group.Item(IO_Server & "INGREDIENTES[150].Nombre}").Value
+   TagValue(151) = My_Group.Item(IO_Server & "INGREDIENTES[151].Nombre}").Value
+   TagValue(152) = My_Group.Item(IO_Server & "INGREDIENTES[152].Nombre}").Value
+   TagValue(153) = My_Group.Item(IO_Server & "INGREDIENTES[153].Nombre}").Value
+   TagValue(154) = My_Group.Item(IO_Server & "INGREDIENTES[154].Nombre}").Value
+   TagValue(155) = My_Group.Item(IO_Server & "INGREDIENTES[155].Nombre}").Value
+   TagValue(156) = My_Group.Item(IO_Server & "INGREDIENTES[156].Nombre}").Value
+   TagValue(157) = My_Group.Item(IO_Server & "INGREDIENTES[157].Nombre}").Value
+   TagValue(158) = My_Group.Item(IO_Server & "INGREDIENTES[158].Nombre}").Value
+   TagValue(159) = My_Group.Item(IO_Server & "INGREDIENTES[159].Nombre}").Value
+   TagValue(160) = My_Group.Item(IO_Server & "INGREDIENTES[160].Nombre}").Value
+   TagValue(161) = My_Group.Item(IO_Server & "INGREDIENTES[161].Nombre}").Value
+   TagValue(162) = My_Group.Item(IO_Server & "INGREDIENTES[162].Nombre}").Value
+   TagValue(163) = My_Group.Item(IO_Server & "INGREDIENTES[163].Nombre}").Value
+   TagValue(164) = My_Group.Item(IO_Server & "INGREDIENTES[164].Nombre}").Value
+   TagValue(165) = My_Group.Item(IO_Server & "INGREDIENTES[165].Nombre}").Value
+   TagValue(166) = My_Group.Item(IO_Server & "INGREDIENTES[166].Nombre}").Value
+   TagValue(167) = My_Group.Item(IO_Server & "INGREDIENTES[167].Nombre}").Value
+   TagValue(168) = My_Group.Item(IO_Server & "INGREDIENTES[168].Nombre}").Value
+   TagValue(169) = My_Group.Item(IO_Server & "INGREDIENTES[169].Nombre}").Value
+   TagValue(170) = My_Group.Item(IO_Server & "INGREDIENTES[170].Nombre}").Value
+   TagValue(171) = My_Group.Item(IO_Server & "INGREDIENTES[171].Nombre}").Value
+   TagValue(172) = My_Group.Item(IO_Server & "INGREDIENTES[172].Nombre}").Value
+   TagValue(173) = My_Group.Item(IO_Server & "INGREDIENTES[173].Nombre}").Value
+   TagValue(174) = My_Group.Item(IO_Server & "INGREDIENTES[174].Nombre}").Value
+   TagValue(175) = My_Group.Item(IO_Server & "INGREDIENTES[175].Nombre}").Value
+   TagValue(176) = My_Group.Item(IO_Server & "INGREDIENTES[176].Nombre}").Value
+   TagValue(177) = My_Group.Item(IO_Server & "INGREDIENTES[177].Nombre}").Value
+   TagValue(178) = My_Group.Item(IO_Server & "INGREDIENTES[178].Nombre}").Value
+   TagValue(179) = My_Group.Item(IO_Server & "INGREDIENTES[179].Nombre}").Value
+   TagValue(180) = My_Group.Item(IO_Server & "INGREDIENTES[180].Nombre}").Value
+   TagValue(181) = My_Group.Item(IO_Server & "INGREDIENTES[181].Nombre}").Value
+   TagValue(182) = My_Group.Item(IO_Server & "INGREDIENTES[182].Nombre}").Value
+   TagValue(183) = My_Group.Item(IO_Server & "INGREDIENTES[183].Nombre}").Value
+   TagValue(184) = My_Group.Item(IO_Server & "INGREDIENTES[184].Nombre}").Value
+   TagValue(185) = My_Group.Item(IO_Server & "INGREDIENTES[185].Nombre}").Value
+   TagValue(186) = My_Group.Item(IO_Server & "INGREDIENTES[186].Nombre}").Value
+   TagValue(187) = My_Group.Item(IO_Server & "INGREDIENTES[187].Nombre}").Value
+   TagValue(188) = My_Group.Item(IO_Server & "INGREDIENTES[188].Nombre}").Value
+   TagValue(189) = My_Group.Item(IO_Server & "INGREDIENTES[189].Nombre}").Value
+   TagValue(190) = My_Group.Item(IO_Server & "INGREDIENTES[190].Nombre}").Value
+   TagValue(191) = My_Group.Item(IO_Server & "INGREDIENTES[191].Nombre}").Value
+   TagValue(192) = My_Group.Item(IO_Server & "INGREDIENTES[192].Nombre}").Value
+   TagValue(193) = My_Group.Item(IO_Server & "INGREDIENTES[193].Nombre}").Value
+   TagValue(194) = My_Group.Item(IO_Server & "INGREDIENTES[194].Nombre}").Value
+   TagValue(195) = My_Group.Item(IO_Server & "INGREDIENTES[195].Nombre}").Value
+   TagValue(196) = My_Group.Item(IO_Server & "INGREDIENTES[196].Nombre}").Value
+   TagValue(197) = My_Group.Item(IO_Server & "INGREDIENTES[197].Nombre}").Value
+   TagValue(198) = My_Group.Item(IO_Server & "INGREDIENTES[198].Nombre}").Value
+   TagValue(199) = My_Group.Item(IO_Server & "INGREDIENTES[199].Nombre}").Value
+   TagValue(200) = My_Group.Item(IO_Server & "ZZ_SELECT_ING1}").Value
+   TagValue(201) = My_Group.Item(IO_Server & "ZZ_SELECT_ING2}").Value
+   TagValue(202) = My_Group.Item(IO_Server & "ZZ_SELECT_ING3}").Value
+   TagValue(203) = My_Group.Item(IO_Server & "ZZ_SELECT_ING4}").Value
+   TagValue(204) = My_Group.Item(IO_Server & "ZZ_SELECT_ING5}").Value
+   TagValue(205) = My_Group.Item(IO_Server & "ZZ_SELECT_ING6}").Value
+   TagValue(206) = My_Group.Item(IO_Server & "ZZ_SELECT_ING7}").Value
+   TagValue(207) = My_Group.Item(IO_Server & "ZZ_SELECT_ING8}").Value
+   TagValue(208) = My_Group.Item(IO_Server & "ZZ_SELECT_ING9}").Value
+   TagValue(209) = My_Group.Item(IO_Server & "ZZ_SELECT_ING10}").Value
+   TagValue(210) = My_Group.Item(IO_Server & "ZZ_SELECT_ING11}").Value
+   TagValue(211) = My_Group.Item(IO_Server & "Program:MainProgram.ING_ACEITE}").Value
+   TagNumber = My_Group.Item(IO_Server & "ZZ_VIS11}").Value
+   ValorCheckbox = My_Group.Item(IO_Server & "Deshabilitar_Mezc_Humeda}").Value
+   ticket = My_Group.Item(IO_Server & "NUMERO_TICKET}").Value
+   orden = My_Group.Item(IO_Server & "NUMERO_ORDEN}").Value
+   ingredienteLiq1 = My_Group.Item(IO_Server & "ingredienteLiq}").Value
+   cantidadLiq1 = My_Group.Item(IO_Server & "cantidadLiq}").Value
+   For i = 1 To 11
+    tanque(i) = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[" & CStr(i) & "]}").Value
+    'cantidadTanque(i) = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D" & CStr(i) & "}").Value
+   Next
+    'Deshabilitar boton ACEPTAR RECETA
+   If Cuadrocombinado14.Text = "" And Cuadrocombinado13.Text = "" Then
+        Button5.Enabled = False
+   End If
+   'ACEITES
+   aceite = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE}").Value
+   aceitecoater = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE_COATER}").Value
+   
+
+End Sub
+
+
+
+
+
+
+Private Sub Button5_Released()
+Button5.Enabled = False
+Etiqueta1.Visible = True
+
+'Control de escritura en tabla
+If Not escrito Then
+    Call cuadrocombinado13_Change
+End If
+'Fin de control de escritura
+ActualizarDatos
+ActualizarIng
+
+'numeroOrden.Repaint
+'numeroTicket.Repaint
+
+version2 = Cuadrocombinado13.Text
+numeroOrden.Caption = orden
+numeroTicket.Caption = ticket
+nombreReceta.Caption = TagValue1(0)
+strSQL = "SELECT [Ingrediente1],[cantidad1],[Ingrediente2],[cantidad2],[Ingrediente3],[cantidad3]," & _
+      "[Ingrediente4],[cantidad4],[Ingrediente5],[cantidad5],[Ingrediente6],[cantidad6]," & _
+      "[Ingrediente7],[cantidad7],[Ingrediente8],[cantidad8],[Ingrediente9],[cantidad9]," & _
+      "[Ingrediente10],[cantidad10],[Ingrediente11],[cantidad11],[IngredienteL1],[cantidadL1] " & _
+      "FROM Recetas WHERE [version] = '" & TagValue1(2) & "' AND [codigo] = '" & TagValue1(1) & "';"
+    ReadSqlServer
+ingrediente1.Caption = ingredienteL(0)
+ingrediente2.Caption = ingredienteL(1)
+ingrediente3.Caption = ingredienteL(2)
+ingrediente4.Caption = ingredienteL(3)
+ingrediente5.Caption = ingredienteL(4)
+ingrediente6.Caption = ingredienteL(5)
+ingrediente7.Caption = ingredienteL(6)
+ingrediente8.Caption = ingredienteL(7)
+ingrediente9.Caption = ingredienteL(8)
+ingrediente10.Caption = ingredienteL(9)
+ingrediente11.Caption = ingredienteL(10)
+cantidad1.Caption = Format(cantidad(0), "##0.00")
+cantidad2.Caption = Format(cantidad(1), "##0.00")
+cantidad3.Caption = Format(cantidad(2), "##0.00")
+cantidad4.Caption = Format(cantidad(3), "##0.00")
+cantidad5.Caption = Format(cantidad(4), "##0.00")
+cantidad6.Caption = Format(cantidad(5), "##0.00")
+cantidad7.Caption = Format(cantidad(6), "##0.00")
+cantidad8.Caption = Format(cantidad(7), "##0.00")
+cantidad9.Caption = Format(cantidad(8), "##0.00")
+cantidad10.Caption = Format(cantidad(9), "##0.00")
+cantidad11.Caption = Format(cantidad(10), "##0.00")
+cantidadL.Caption = Format(cantidad(11), "##0.00")
+
+AceiteSqlServer
+ingredienteL1.Caption = ingredienteLiq
+'ingredienteL.Caption = ingredienteLiq
+cantidadL.Caption = Format(cantidadLiq, "##0.0")
+
+'ACEITES
+Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE}")
+HMITag.PendingWriteValue = Format(cantidadLiq, "##0.0")
+Result = My_Group.WritePendingValues(ErrorTags)
+Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE_COATER}")
+HMITag.PendingWriteValue = 0
+Result = My_Group.WritePendingValues(ErrorTags)
+
+End Sub
+
+Private Sub CheckBox1_Click()
+If checkbox1.Value = True Then
+    WriteValue(13) = 1
+    Set HMITag = My_Group.Item(IO_Server & "Deshabilitar_Mezc_Humeda}")
+    HMITag.PendingWriteValue = WriteValue(13)
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+    
+If checkbox1.Value = False Then
+    WriteValue(13) = 0
+    Set HMITag = My_Group.Item(IO_Server & "Deshabilitar_Mezc_Humeda}")
+    HMITag.PendingWriteValue = WriteValue(13)
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+   
+End Sub
+
+Public Sub ActualizarDatos()
+Add_MyGroup
+   My_Group.RefreshFromSource ErrorTags ' refresh values
+   TagValue1(0) = My_Group.Item(IO_Server & "DEF_RECETA.ID}").Value
+   TagValue1(1) = My_Group.Item(IO_Server & "DEF_RECETA.CODIGO}").Value
+   TagValue1(2) = My_Group.Item(IO_Server & "DEF_RECETA.VERSION}").Value
+   TagValue1(3) = My_Group.Item(IO_Server & "DEF_RECETA.DESCRIPCION}").Value
+   TagValue1(4) = My_Group.Item(IO_Server & "DEF_RECETA.COD_PROD_TERM}").Value
+   TagValue1(5) = My_Group.Item(IO_Server & "DEF_RECETA.COD_FABRICA}").Value
+   TagValue1(6) = My_Group.Item(IO_Server & "DEF_RECETA.OBSERVACIONES}").Value
+
+
+End Sub
+
+Private Sub Display_AnimationStart()
+ActualizarIng
+
+'AceiteSqlServer
+'ingredienteL1.Caption = ingredienteLiq1
+'cantidadL.Caption = cantidadLiq1
+
+If ValorCheckbox = 1 Then
+    checkbox1.Value = True
+Else
+    checkbox1.Value = False
+End If
+
+
+For counter = 0 To 199
+    Cuadrocombinado1.AddItem TagValue(counter)
+Next
+Cuadrocombinado1.ListIndex = TagValue(200)
+
+
+For counter = 0 To 199
+    Cuadrocombinado2.AddItem TagValue(counter)
+Next
+Cuadrocombinado2.ListIndex = TagValue(201)
+
+For counter = 0 To 199
+    Cuadrocombinado3.AddItem TagValue(counter)
+Next
+Cuadrocombinado3.ListIndex = TagValue(202)
+
+For counter = 0 To 199
+    Cuadrocombinado4.AddItem TagValue(counter)
+Next
+Cuadrocombinado4.ListIndex = TagValue(203)
+
+For counter = 0 To 199
+    Cuadrocombinado5.AddItem TagValue(counter)
+Next
+Cuadrocombinado5.ListIndex = TagValue(204)
+
+For counter = 0 To 199
+    Cuadrocombinado6.AddItem TagValue(counter)
+Next
+Cuadrocombinado6.ListIndex = TagValue(205)
+
+For counter = 0 To 199
+    Cuadrocombinado7.AddItem TagValue(counter)
+Next
+Cuadrocombinado7.ListIndex = TagValue(206)
+
+For counter = 0 To 199
+    Cuadrocombinado8.AddItem TagValue(counter)
+Next
+Cuadrocombinado8.ListIndex = TagValue(207)
+
+For counter = 0 To 199
+    Cuadrocombinado9.AddItem TagValue(counter)
+Next
+Cuadrocombinado9.ListIndex = TagValue(208)
+
+For counter = 0 To 199
+    Cuadrocombinado10.AddItem TagValue(counter)
+Next
+Cuadrocombinado10.ListIndex = TagValue(209)
+
+For counter = 0 To 199
+    Cuadrocombinado11.AddItem TagValue(counter)
+Next
+Cuadrocombinado11.ListIndex = TagValue(210)
+
+For counter = 0 To 199
+    Cuadrocombinado12.AddItem TagValue(counter)
+Next
+Cuadrocombinado12.ListIndex = TagValue(211)
+
+ActualizarDatos
+ActualizarIng
+numeroOrden.Caption = orden
+numeroTicket.Caption = ticket
+nombreReceta.Caption = TagValue1(0)
+strSQL = "SELECT [Ingrediente1],[cantidad1],[Ingrediente2],[cantidad2],[Ingrediente3],[cantidad3]," & _
+      "[Ingrediente4],[cantidad4],[Ingrediente5],[cantidad5],[Ingrediente6],[cantidad6]," & _
+      "[Ingrediente7],[cantidad7],[Ingrediente8],[cantidad8],[Ingrediente9],[cantidad9]," & _
+      "[Ingrediente10],[cantidad10],[Ingrediente11],[cantidad11],[IngredienteL1],[cantidadL1] " & _
+      "FROM Recetas WHERE [version] = '" & TagValue1(2) & "' AND [codigo] = '" & TagValue1(1) & "';"
+
+ReadSqlServer
+ingrediente1.Caption = ingredienteL(0)
+ingrediente2.Caption = ingredienteL(1)
+ingrediente3.Caption = ingredienteL(2)
+ingrediente4.Caption = ingredienteL(3)
+ingrediente5.Caption = ingredienteL(4)
+ingrediente6.Caption = ingredienteL(5)
+ingrediente7.Caption = ingredienteL(6)
+ingrediente8.Caption = ingredienteL(7)
+ingrediente9.Caption = ingredienteL(8)
+ingrediente10.Caption = ingredienteL(9)
+ingrediente11.Caption = ingredienteL(10)
+ingredienteL1.Caption = ingredienteL(11)
+cantidad1.Caption = Format(cantidad(0), "##0.00")
+cantidad2.Caption = Format(cantidad(1), "##0.00")
+cantidad3.Caption = Format(cantidad(2), "##0.00")
+cantidad4.Caption = Format(cantidad(3), "##0.00")
+cantidad5.Caption = Format(cantidad(4), "##0.00")
+cantidad6.Caption = Format(cantidad(5), "##0.00")
+cantidad7.Caption = Format(cantidad(6), "##0.00")
+cantidad8.Caption = Format(cantidad(7), "##0.00")
+cantidad9.Caption = Format(cantidad(8), "##0.00")
+cantidad10.Caption = Format(cantidad(9), "##0.00")
+cantidad11.Caption = Format(cantidad(10), "##0.00")
+cantidadL.Caption = Format(cantidad(11), "##0.00")
+
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim sConnString As String
+
+ActualizarDatos
+'strSQL = "INSERT INTO OrdenProduccion ([ID], [CODIGO], [VERSION], [DESCRIPCION], [COD_PROD_TERM], [COD_FABRICA], [OBSERVACIONES])" & _
+'          "VALUES ('" & TagValue(0) & "', '" & TagValue(1) & "', '" & TagValue(2) & "', '" & TagValue(3) & "', '" & TagValue(4) & "', '" & TagValue(5) & "', '" & TagValue(6) & "');"
+
+'strSQL = "SELECT DISTINCT [CODIGO] FROM OrdenProduccion ORDER BY [CODIGO];"
+strSQL = "SELECT DISTINCT [codigo] FROM recetas ORDER BY [codigo];"
+
+
+' Create the connection string.
+'sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+
+sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+"Initial Catalog=Recetas;" & _
+"Integrated Security=SSPI;"
+
+' Create the Connection and Recordset objects.
+Set conn = New ADODB.Connection
+Set rs = New ADODB.Recordset
+
+' Open the connection and execute.
+conn.Open sConnString
+Set rs = conn.Execute(strSQL)
+
+rs.MoveFirst
+    With Me.Cuadrocombinado14
+        .Clear
+        Do
+            .AddItem rs![codigo]
+            rs.MoveNext
+        Loop Until rs.EOF
+    End With
+
+' Clean up
+If CBool(conn.State And adStateOpen) Then conn.Close
+Set conn = Nothing
+Set rs = Nothing
+
+'control de escritura
+escrito = False
+Button5.Enabled = False
+
+End Sub
+
+
+Private Sub cuadrocombinado13_Change()
+'strSQL = "SELECT * FROM OrdenProduccion WHERE [CODIGO] = '" & ComboBox1.Text & "';"
+strSQL = "SELECT [nombre],[codigo],[version],[descripcion],[codTerminado],[codFabrica],[observaciones] FROM Recetas WHERE [version] = '" & Cuadrocombinado13.Text & "' AND [codigo]='" & Cuadrocombinado14.Text & "';"
+
+ConnectSqlServer
+'control de escritura de cabecera...
+escrito = True
+    'habilitar boton ACEPTAR RECETA
+If Len(Cuadrocombinado14.Text) <> 0 And Len(Cuadrocombinado13.Text) <> 0 Then
+        Button5.Enabled = True
+        Etiqueta1.Visible = False
+End If
+
+End Sub
+
+Sub ReadSqlServer()
+
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim sConnString As String
+
+' Create the connection string.
+'sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+
+sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+"Initial Catalog=Recetas;" & _
+"Integrated Security=SSPI;"
+
+' Create the Connection and Recordset objects.
+Set conn = New ADODB.Connection
+Set rs = New ADODB.Recordset
+
+' Open the connection and execute.
+conn.Open sConnString
+Set rs = conn.Execute(strSQL)
+
+If (Not rs.EOF) Or (Not rs.BOF) Then
+    ingredienteL(0) = rs.Fields(0)
+    cantidad(0) = rs.Fields(1)
+    ingredienteL(1) = rs.Fields(2)
+    cantidad(1) = rs.Fields(3)
+    ingredienteL(2) = rs.Fields(4)
+    cantidad(2) = rs.Fields(5)
+    ingredienteL(3) = rs.Fields(6)
+    cantidad(3) = rs.Fields(7)
+    ingredienteL(4) = rs.Fields(8)
+    cantidad(4) = rs.Fields(9)
+    ingredienteL(5) = rs.Fields(10)
+    cantidad(5) = rs.Fields(11)
+    ingredienteL(6) = rs.Fields(12)
+    cantidad(6) = rs.Fields(13)
+    ingredienteL(7) = rs.Fields(14)
+    cantidad(7) = rs.Fields(15)
+    ingredienteL(8) = rs.Fields(16)
+    cantidad(8) = rs.Fields(17)
+    ingredienteL(9) = rs.Fields(18)
+    cantidad(9) = rs.Fields(19)
+    ingredienteL(10) = rs.Fields(20)
+    cantidad(10) = rs.Fields(21)
+    ingredienteL(11) = rs.Fields(22)
+    cantidad(11) = rs.Fields(23)
+    
+End If
+
+' Clean up
+If CBool(conn.State And adStateOpen) Then conn.Close
+Set conn = Nothing
+Set rs = Nothing
+
+End Sub
+
+Sub AceiteSqlServer()
+
+strSQL = "SELECT [ingredienteL1],[cantidadL1] FROM Recetas WHERE [version] = '" & version2 & "';"
+
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim sConnString As String
+
+' Create the connection string.
+'sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" &
+
+sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+"Initial Catalog=Recetas;" & _
+"Integrated Security=SSPI;"
+
+' Create the Connection and Recordset objects.
+Set conn = New ADODB.Connection
+Set rs = New ADODB.Recordset
+
+
+' Open the connection and execute.
+conn.Open sConnString
+Set rs = conn.Execute(strSQL)
+
+If (Not rs.EOF) Or (Not rs.BOF) Then
+    ingredienteLiq = rs.Fields(0)
+    cantidadLiq = rs.Fields(1)
+
+Set HMITag = My_Group.Item(IO_Server & "ingredienteLiq}")
+HMITag.PendingWriteValue = ingredienteLiq
+Result = My_Group.WritePendingValues(ErrorTags)
+
+Set HMITag = My_Group.Item(IO_Server & "cantidadLiq}")
+HMITag.PendingWriteValue = cantidadLiq
+Result = My_Group.WritePendingValues(ErrorTags)
+    
+End If
+
+' Clean up
+If CBool(conn.State And adStateOpen) Then conn.Close
+Set conn = Nothing
+Set rs = Nothing
+
+End Sub
+
+Sub WriteSqlServer()
+
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim sConnString As String
+
+' Create the connection string.
+'sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+
+sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+"Initial Catalog=Recetas;" & _
+"Integrated Security=SSPI;"
+
+' Create the Connection and Recordset objects.
+Set conn = New ADODB.Connection
+Set rs = New ADODB.Recordset
+
+' Open the connection and execute.
+conn.Open sConnString
+Set rs = conn.Execute(strSQL)
+
+If (Not rs.EOF) Or (Not rs.BOF) Then
+    'ingrediente(0) = rs.Fields(0)
+    
+End If
+
+' Clean up
+If CBool(conn.State And adStateOpen) Then conn.Close
+Set conn = Nothing
+Set rs = Nothing
+
+End Sub
+
+Private Sub NumericDisplay15_Change()
+If NumericDisplay15.Value = 1 Then
+    ActualizarDatos
+    ActualizarIng
+    numeroOrden.Caption = orden
+    numeroTicket.Caption = ticket
+    nombreReceta.Caption = TagValue1(0)
+    strSQL = "SELECT [Ingrediente1],[cantidad1],[Ingrediente2],[cantidad2],[Ingrediente3],[cantidad3]," & _
+      "[Ingrediente4],[cantidad4],[Ingrediente5],[cantidad5],[Ingrediente6],[cantidad6]," & _
+      "[Ingrediente7],[cantidad7],[Ingrediente8],[cantidad8],[Ingrediente9],[cantidad9]," & _
+      "[Ingrediente10],[cantidad10],[Ingrediente11],[cantidad11],[IngredienteL1],[cantidadL1] " & _
+      "FROM Recetas WHERE [version] = '" & TagValue1(2) & "' AND [codigo] = '" & TagValue1(1) & "';"
+    ReadSqlServer
+    ingrediente1.Caption = ingredienteL(0)
+    ingrediente2.Caption = ingredienteL(1)
+    ingrediente3.Caption = ingredienteL(2)
+    ingrediente4.Caption = ingredienteL(3)
+    ingrediente5.Caption = ingredienteL(4)
+    ingrediente6.Caption = ingredienteL(5)
+    ingrediente7.Caption = ingredienteL(6)
+    ingrediente8.Caption = ingredienteL(7)
+    ingrediente9.Caption = ingredienteL(8)
+    ingrediente10.Caption = ingredienteL(9)
+    ingrediente11.Caption = ingredienteL(10)
+    ingredienteL1.Caption = ingredienteL(11)
+    cantidad1.Caption = Format(cantidad(0), "##0.00")
+    cantidad2.Caption = Format(cantidad(1), "##0.00")
+    cantidad3.Caption = Format(cantidad(2), "##0.00")
+    cantidad4.Caption = Format(cantidad(3), "##0.00")
+    cantidad5.Caption = Format(cantidad(4), "##0.00")
+    cantidad6.Caption = Format(cantidad(5), "##0.00")
+    cantidad7.Caption = Format(cantidad(6), "##0.00")
+    cantidad8.Caption = Format(cantidad(7), "##0.00")
+    cantidad9.Caption = Format(cantidad(8), "##0.00")
+    cantidad10.Caption = Format(cantidad(9), "##0.00")
+    cantidad11.Caption = Format(cantidad(10), "##0.00")
+    cantidadL.Caption = Format(cantidad(11), "##0.00")
+End If
+End Sub
+Sub poblarVersion()
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim sConnString As String
+
+ActualizarDatos
+'strSQL = "INSERT INTO OrdenProduccion ([ID], [CODIGO], [VERSION], [DESCRIPCION], [COD_PROD_TERM], [COD_FABRICA], [OBSERVACIONES])" & _
+'          "VALUES ('" & TagValue(0) & "', '" & TagValue(1) & "', '" & TagValue(2) & "', '" & TagValue(3) & "', '" & TagValue(4) & "', '" & TagValue(5) & "', '" & TagValue(6) & "');"
+
+'strSQL = "SELECT DISTINCT [CODIGO] FROM OrdenProduccion ORDER BY [CODIGO];"
+'strSQL = "SELECT DISTINCT [codigo] FROM recetas ORDER BY [codigo];"
+
+
+' Create the connection string.
+sConnString = "Provider=SQLOLEDB;Data Source=GM-SCADA-01\SCADA;" & _
+"Initial Catalog=Recetas;" & _
+"Integrated Security=SSPI;"
+
+' Create the Connection and Recordset objects.
+Set conn = New ADODB.Connection
+Set rs = New ADODB.Recordset
+
+' Open the connection and execute.
+conn.Open sConnString
+Set rs = conn.Execute(strSQL)
+
+rs.MoveFirst
+    With Me.Cuadrocombinado13
+        .Clear
+        Do
+            .AddItem rs![Version]
+            rs.MoveNext
+        Loop Until rs.EOF
+    End With
+
+' Clean up
+If CBool(conn.State And adStateOpen) Then conn.Close
+Set conn = Nothing
+Set rs = Nothing
+
+End Sub
+
+
+Private Sub Cuadrocombinado14_Change()
+'strSQL = "SELECT * FROM OrdenProduccion WHERE [CODIGO] = '" & ComboBox2.Text & "';"
+strSQL = "SELECT [version] FROM Recetas WHERE [codigo] = '" & Cuadrocombinado14.Text & "';"
+poblarVersion
+'ConnectSqlServer
+
+End Sub
+
+Private Sub NumericDisplay29_Change()
+
+End Sub
+
+Private Sub NumericInput11_Change()
+ActualizarIng
+If NumericInput11.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput11.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(11))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D11}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput10_Change()
+ActualizarIng
+If NumericInput10.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput10.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(10))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D10}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+
+'actualizar campos de aceite por mezcla y coater 29-062017 10:10am
+
+Private Sub NumericInput16_Change()
+Dim aceitetotal As Double
+aceitetotal = CDbl(cantidadL.Caption)
+aceitecoater = aceitetotal - aceite
+
+'ACEITES
+Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE}")
+HMITag.PendingWriteValue = Format(aceite, "##0.0")
+Result = My_Group.WritePendingValues(ErrorTags)
+Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE_COATER}")
+HMITag.PendingWriteValue = Format(aceitecoater, "##0.0")
+Result = My_Group.WritePendingValues(ErrorTags)
+End Sub
+
+'actualizar campos de aceite por mezcla y coater 29-062017 10:10am
+
+
+Private Sub NumericInput20_Change()
+
+Dim aceitetotal As Double
+
+aceitetotal = CDbl(cantidadL.Caption)
+aceite = aceitetotal - aceitecoater
+
+'ACEITES
+Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE}")
+HMITag.PendingWriteValue = Format(aceite, "##0.0")
+Result = My_Group.WritePendingValues(ErrorTags)
+Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_ACEITE_COATER}")
+HMITag.PendingWriteValue = Format(aceitecoater, "##0.0")
+Result = My_Group.WritePendingValues(ErrorTags)
+
+End Sub
+
+Private Sub NumericInput9_Change()
+ActualizarIng
+If NumericInput9.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput9.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(9))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D9}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput8_Change()
+ActualizarIng
+If NumericInput8.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput8.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(8))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D8}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput7_Change()
+ActualizarIng
+If NumericInput7.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput7.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(7))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D7}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput6_Change()
+ActualizarIng
+If NumericInput6.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput6.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(6))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D6}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput5_Change()
+ActualizarIng
+If NumericInput5.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput5.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(5))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D5}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput4_Change()
+ActualizarIng
+If NumericInput4.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput4.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(4))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D4}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput3_Change()
+ActualizarIng
+If NumericInput3.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput3.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(3))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D3}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput2_Change()
+ActualizarIng
+If NumericInput2.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput2.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(2))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D2}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub NumericInput1_Change()
+ActualizarIng
+If NumericInput1.Value = 0 Then
+    Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+    HMITag.PendingWriteValue = 0
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+If NumericInput1.Value > 0 Then
+    If StrComp(Trim(ingrediente1.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad1.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente2.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad2.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente3.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad3.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente4.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad4.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente5.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad5.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente6.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad6.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente7.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad7.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente8.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad8.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente9.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad9.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente10.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad10.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    ElseIf StrComp(Trim(ingrediente11.Caption), Trim(tanque(1))) = 0 Then
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_CANTIDAD_MACRO_D1}")
+        HMITag.PendingWriteValue = cantidad11.Caption
+        Result = My_Group.WritePendingValues(ErrorTags)
+    End If
+End If
+End Sub
+Private Sub Cuadrocombinado12_Change()
+Add_MyGroup
+Dim Result As Boolean
+For counter = 0 To 199
+    If Cuadrocombinado12.ListIndex = counter Then
+        WriteValue(12) = counter
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_ACEITE}")
+        HMITag.PendingWriteValue = WriteValue(12)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+LPosition = InStr(Cuadrocombinado12.Text, "ACEITE")
+If (LPosition <> 0) Then
+    AceiteGrasa = 1
+    Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.Grasa_Aceite}")
+    HMITag.PendingWriteValue = AceiteGrasa
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+
+LPosition = InStr(Cuadrocombinado12.Text, "GRASA")
+If (LPosition <> 0) Then
+    AceiteGrasa = 0
+    Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.Grasa_Aceite}")
+    HMITag.PendingWriteValue = AceiteGrasa
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+
+LPosition = InStr(Cuadrocombinado12.Text, "SEBO")
+If (LPosition <> 0) Then
+    AceiteGrasa = 0
+    Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.Grasa_Aceite}")
+    HMITag.PendingWriteValue = AceiteGrasa
+    Result = My_Group.WritePendingValues(ErrorTags)
+End If
+
+End Sub
+Private Sub Cuadrocombinado11_Change()
+Add_MyGroup
+Dim Result As Boolean
+For counter = 0 To 199
+    If Cuadrocombinado11.ListIndex = counter Then
+        WriteValue(11) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING11}")
+        HMITag.PendingWriteValue = WriteValue(11)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[11]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado10_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado10.ListIndex = counter Then
+        WriteValue(10) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING10}")
+        HMITag.PendingWriteValue = WriteValue(10)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[10]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado9_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado9.ListIndex = counter Then
+        WriteValue(9) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING9}")
+        HMITag.PendingWriteValue = WriteValue(9)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[9]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado8_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado8.ListIndex = counter Then
+        WriteValue(8) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING8}")
+        HMITag.PendingWriteValue = WriteValue(8)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[8]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado7_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado7.ListIndex = counter Then
+        WriteValue(7) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING7}")
+        HMITag.PendingWriteValue = WriteValue(7)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[7]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado6_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado6.ListIndex = counter Then
+        WriteValue(6) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING6}")
+        HMITag.PendingWriteValue = WriteValue(6)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[6]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado5_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado5.ListIndex = counter Then
+        WriteValue(5) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING5}")
+        HMITag.PendingWriteValue = WriteValue(5)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[5]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado4_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado4.ListIndex = counter Then
+        WriteValue(4) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING4}")
+        HMITag.PendingWriteValue = WriteValue(4)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[4]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado3_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado3.ListIndex = counter Then
+        WriteValue(3) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING3}")
+        HMITag.PendingWriteValue = WriteValue(3)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[3]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado2_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado2.ListIndex = counter Then
+        WriteValue(2) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING2}")
+        HMITag.PendingWriteValue = WriteValue(2)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[2]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
+Private Sub Cuadrocombinado1_Change()
+
+For counter = 0 To 199
+    If Cuadrocombinado1.ListIndex = counter Then
+        WriteValue(1) = counter
+        Set HMITag = My_Group.Item(IO_Server & "ZZ_SELECT_ING1}")
+        HMITag.PendingWriteValue = WriteValue(1)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Set HMITag = My_Group.Item(IO_Server & "Program:MainProgram.ING_TANQUE[1]}")
+        HMITag.PendingWriteValue = TagValue(counter)
+        Result = My_Group.WritePendingValues(ErrorTags)
+        Exit For
+    End If
+Next
+
+End Sub
